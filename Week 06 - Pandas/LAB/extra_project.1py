@@ -1,0 +1,47 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("servers.csv")
+
+print("--- HEAD ---")
+print(df.head())
+
+print("\n--- DTYPES ---")
+print(df.dtypes)
+
+print(f"\nTotal Servers / Rows: {len(df)}")
+print(f"Total Columns: {len(df.columns)}")
+
+df["percent"] = (df["used"] / df["total"]) * 100
+
+high_usage_servers = df[df["percent"] >= 90]
+print(f"\nNumber of servers at or above 90% capacity: {len(high_usage_servers)}")
+
+print("\nAverage 'percent' utilization per region:")
+region_avg = df.groupby("region")["percent"].mean()
+print(region_avg)
+
+most_at_risk = df.sort_values(by="percent", ascending=False).iloc[0]
+print(f"\nSingle server most at risk: {most_at_risk['server']} with {most_at_risk['percent']:.2f}% usage")
+
+def get_status(pct):
+    if pct > 95:
+        return "OVER LIMIT"
+    elif pct >= 85:
+        return "WARNING"
+    else:
+        return "OK"
+
+df["status"] = df["percent"].apply(get_status)
+
+df["status"].value_counts().plot(kind="bar", color=["red", "orange", "green"])
+plt.title("Server Count by Status")
+plt.xlabel("Status")
+plt.ylabel("Number of Servers")
+plt.tight_layout()
+plt.savefig("servers_status_chart.png")
+plt.close()
+
+over_limit_df = df[df["status"] == "OVER LIMIT"]
+over_limit_df.to_csv("servers_at_risk.csv", index=False)
+print("\nExported OVER LIMIT servers to 'servers_at_risk.csv'.")

@@ -1,17 +1,12 @@
 # BROKEN ON PURPOSE.
 # Run it, read the last line, then fix it.
-
 class Record:
-    def __init__(self,label,value,limit)
-        self . label = "R-001"
-        self . value = 87
-        self . limit = 100
-        
-        def status (percent): # this parameter should be self
-            return percent
-        
-        
-r = Record('M00123',90,100)
-r2 = Record('M00124',80,100)
+    def __init__(self, percent):
+        self.label = "R-001"
+        self.value = percent
+        self.limit = 100
+    def status(self):  # this parameter should be self
+        return self.value
 
-print(r.status(95))
+r = Record(95)
+print(r.status())
